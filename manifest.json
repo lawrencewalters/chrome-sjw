@@ -6,7 +6,7 @@
       "matches": [ "*://*/*" ],
       "run_at": "document_end"
    } ],
-   "description": "Replaces whatever I want with whatever I want",
+   "description": "This is a simple, general purpose (although I have used it for my singular social justice purpose!), text replacer for chrome.",
    "manifest_version": 2,
    "name": "SJW Replacement",
    "short_name": "SJW",

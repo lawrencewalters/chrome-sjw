@@ -1,12 +1,18 @@
-function walk(rootNode)
-{
+'use strict';
+
+var targets = [{
+        find: /\balt(ernative)?( |-)right\b/gi,
+        replace: ['Neo-Nazi', 'Racist', 'White supremacist']
+    }
+];
+
+function walk(rootNode) {
     // Find all the text nodes in rootNode
     var walker = document.createTreeWalker(
-        rootNode,
-        NodeFilter.SHOW_TEXT,
-        null,
-        false
-    ),
+            rootNode,
+            NodeFilter.SHOW_TEXT,
+            null,
+            false),
     node;
 
     // Modify each text node's value
@@ -16,61 +22,13 @@ function walk(rootNode)
 }
 
 function handleText(textNode) {
-  textNode.nodeValue = replaceText(textNode.nodeValue);
+    textNode.nodeValue = replaceText(textNode.nodeValue);
 }
 
-function replaceText(v)
-{
-    // Fix some misspellings
-    v = v.replace(/\b(M|m)illienial(s)?\b/g, "$1illennial$2");
-    v = v.replace(/\b(M|m)illenial(s)?\b/g, "$1illennial$2");
-    v = v.replace(/\b(M|m)ilennial(s)?\b/g, "$1illennial$2");
-    v = v.replace(/\b(M|m)ilenial(s)?\b/g, "$1illennial$2");
-
-    // Millennial Generation
-    v = v.replace(
-        /\b(?:Millennial Generation)|(?:Generation Millennial)\b/g,
-        "Plissken Faction"
-    );
-    v = v.replace(
-        /\b(?:millennial generation)|(?:generation millennial)\b/g,
-        "Plissken faction"
-    );
-
-    
- racism, white supremacism, and neo-Nazism    
-    
-    // alt-right
-    v = v.replace(/\balt( |-)right\b/gi, "Neo-Nazi");
-
-    //  Gendered Millennials
-    v = v.replace(/\bMillennial (M|m)(e|a)n('s)?\b/g, "Snake $1$2n$3");
-    v = v.replace(/\bmillennial m(e|a)n('s)?\b/g, "snake m$1n$2");
-    v = v.replace(/\bMillennial (B|b)oy('s|s(?:')?)?\b/g, "Snake $1oy$2");
-
-    // Boomerang Generation
-    v = v.replace(
-        /\b(?:Boomerang Generation)|(?:Generation Boomerang)\b/g,
-        "Ouroboros Society"
-    );
-    v = v.replace(
-        /\b(?:boomerang generation)|(?:generation boomerang)\b/g,
-        "ouroboros society"
-    );
-
-    // Peter Pan Generation
-    v = v.replace(/\bPeter Pan Generation\b/g, "Neheb-Kau Cult");
-    v = v.replace(/\b(?:P|p)eter (?:P|p)an generation\b/g, "Neheb-Kau cult");
-    v = v.replace(/\bGeneration Peter Pan\b/g, "Cult of Neheb-Kau");
-    v = v.replace(/\bgeneration (?:P|p)eter (?:P|p)an\b/g, "cult of Neheb-Kau");
-
-    // Generation 911
-    v = v.replace(/\bGen(?:eration)? 9\/?11\b/g, "Kaa Tribe");
-    v = v.replace(/\b9\/?11 Generation\b/g, "Tribe of the Kaa");
-
-    // Cohorts
-    v = v.replace(/\b(S|s)truggling (A|a)spirationals\b/g, "Struggling (with) Pythons");
-
+function replaceText(v) {
+    for (var i = 0; i < targets.length; i += 1) {
+        v = v.replace(targets[i].find, targets[i].replace[targets[i].current]);
+    }
     return v;
 }
 
@@ -78,13 +36,11 @@ function replaceText(v)
 function observerCallback(mutations) {
     var i;
 
-    mutations.forEach(function(mutation) {
+    mutations.forEach(function (mutation) {
         for (i = 0; i < mutation.addedNodes.length; i++) {
             if (mutation.addedNodes[i].nodeType === 3) {
-                // Replace the text for text nodes
                 handleText(mutation.addedNodes[i]);
             } else {
-                // Otherwise, find text nodes within the given node and replace text
                 walk(mutation.addedNodes[i]);
             }
         }
@@ -99,7 +55,8 @@ function walkAndObserve(doc) {
         childList: true,
         subtree: true
     },
-    bodyObserver, titleObserver;
+    bodyObserver,
+    titleObserver;
 
     // Do the initial text replacements in the document body and title
     walk(doc.body);
@@ -115,4 +72,14 @@ function walkAndObserve(doc) {
         titleObserver.observe(docTitle, observerConfig);
     }
 }
+
+function setCurrentReplacements(targs){
+    for (var i = 0; i < targs.length; i += 1) {
+        if(typeof targs[i].current === "undefined") {
+            targs[i].current = Math.floor(Math.random() * targs[i].replace.length);
+        }
+    }    
+}
+
+setCurrentReplacements(targets);
 walkAndObserve(document);
